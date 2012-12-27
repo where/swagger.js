@@ -123,6 +123,36 @@ callback = function(thing) { console.log(thing); }
 myApi.things.createThing(args, callback);
 ```
 
+### API Key and Secret
+
+If your SwaggerApi initialization hash includes `api_secret`, it will
+be used to generate a timestamped encrypted token:
+
+```javascript
+secure_api = new SwaggerApi({
+  discoveryUrl: 'YOUR_SECURE_API_URL',
+  api_key: 'YOUR_API_KEY',
+  api_secret: 'YOUR_SECRET'
+});
+```
+
+This will include three query parameters in each API request:
+
+* `api_key` - `YOUR_API_KEY`
+* `timestamp` - the current UTC time in milliseconds
+* `api_token` - the SHA1 hash of `YOUR_SECRET` concatenated with the timestamp
+
+This prevents man-in-the-middle attacks, because the server can reject
+timestamps in the past.
+
+You can customize the names of these parameters with `apiKeyName`,
+`apiTimestampName`, and `apiTokenName`.
+
+To use the encrypted secret feature, your application will need to
+include the `sha1.js` library from the CryptoJS project:
+http://code.google.com/p/crypto-js/#SHA-1
+A rollup is also provided in the `lib` directory of the swagger.js project.
+
 ### Debugging / cURL
 
 Set `verbose` to `true` when initializing your client to see cURL

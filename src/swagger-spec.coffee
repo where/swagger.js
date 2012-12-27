@@ -1,4 +1,5 @@
 window.api_key = 'special-key'
+window.api_secret = 'sEkRiT'
 
 describe 'SwaggerApi', ->
   
@@ -139,6 +140,7 @@ describe 'SwaggerOperation', ->
       operation.path = "/my.{format}/{foo}/kaboo"
       operation.parameters = [{paramType: 'path', name: 'foo'}]
       window.args = {foo: 'pee'}
+      wordnik.api_secret = window.api_secret
     
     it "verifies notes", ->
       runs ->
@@ -156,6 +158,24 @@ describe 'SwaggerOperation', ->
       runs ->
         args = {}
         expect(-> operation.urlify(args) ).toThrow("foo is a required path param.")
+
+    it "includes api_key, timestamp, and api_token", ->
+      runs ->
+        url = operation.urlify(args)
+        expect(url).toMatch("api_key=#{api_key}")
+        m = url.match(/timestamp=([0-9]+)/)
+        expect(m).not.toBeNull()
+        t = m[1]
+        token = CryptoJS.SHA1(api_secret + t)
+        expect(url).toMatch("api_token=#{token}")
+
+    it "allows customization of api_key, timestamp, and api_token", ->
+      runs ->
+        wordnik.apiKeyName = 'key'
+        wordnik.apiTimestampName = 't'
+        wordnik.apiTokenName = 'token'
+        url = operation.urlify(args)
+        expect(url).toMatch(/\bkey=.*\bt=.*\btoken=/)
 
   describe "do", ->
 
