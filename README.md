@@ -149,8 +149,8 @@ You can customize the names of these parameters with `apiKeyName`,
 `apiTimestampName`, and `apiTokenName`.
 
 To use the encrypted secret feature, your application will need to
-include the `sha1.js` library from the CryptoJS project:
-http://code.google.com/p/crypto-js/#SHA-1
+include the `sha1.js` library from the
+[CryptoJS project](http://code.google.com/p/crypto-js/#SHA-1).
 A rollup is also provided in the `lib` directory of the swagger.js project.
 
 ### Debugging / cURL
