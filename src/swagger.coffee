@@ -15,6 +15,7 @@ class SwaggerApi
     @apiTokenName = if options.apiTokenName? then options.apiTokenName else 'api_token'
     @api_key = options.apiKey if options.apiKey?
     @api_key = options.api_key if options.api_key?
+    @api_secret = options.apiSecret if options.apiSecret?
     @api_secret = options.api_secret if options.api_secret?
     @verbose = options.verbose if options.verbose?
     @supportHeaderParams = if options.supportHeaderParams? then options.supportHeaderParams else false

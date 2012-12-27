@@ -39,6 +39,7 @@ describe 'SwaggerApi', ->
           discoveryUrl: "http://unicorns.com"
           debug: true
           apiKey: 'stardust'
+          apiSecret: 'rainbros'
 
         waitsFor ->
           unicornApi
@@ -51,9 +52,10 @@ describe 'SwaggerApi', ->
         runs ->
           expect(unicornApi.debug).toBe(true)
       
-      it "converts apiKey to api_key", ->
+      it "converts apiKey to api_key and apiSecret to api_secret", ->
         runs ->
           expect(unicornApi.api_key).toBe('stardust')
+          expect(unicornApi.api_secret).toBe('rainbros')
           
   describe 'build', ->
     
