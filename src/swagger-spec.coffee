@@ -46,7 +46,7 @@ describe 'SwaggerApi', ->
     
       it "allows discoveryUrl to be set", ->
         runs ->
-          expect(unicornApi.discoveryUrl).toBe("http://unicorns.com?api_key=stardust")
+          expect(unicornApi.discoveryUrl).toMatch(/unicorns.com\?api_key=stardust&timestamp=[0-9]+&api_token=[0-9a-f]+/)
     
       it "allows debugging to be enabled", ->
         runs ->

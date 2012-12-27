@@ -13,10 +13,10 @@ class SwaggerApi
     @apiKeyName = if options.apiKeyName? then options.apiKeyName else 'api_key'
     @apiTimestampName = if options.apiTimestampName? then options.apiTimestampName else 'timestamp'
     @apiTokenName = if options.apiTokenName? then options.apiTokenName else 'api_token'
-    @api_key = options.apiKey if options.apiKey?
-    @api_key = options.api_key if options.api_key?
-    @api_secret = options.apiSecret if options.apiSecret?
-    @api_secret = options.api_secret if options.api_secret?
+    @api_key = jQuery.trim(options.apiKey) if options.apiKey?
+    @api_key = jQuery.trim(options.api_key) if options.api_key?
+    @api_secret = jQuery.trim(options.apiSecret) if options.apiSecret?
+    @api_secret = jQuery.trim(options.api_secret) if options.api_secret?
     @verbose = options.verbose if options.verbose?
     @supportHeaderParams = if options.supportHeaderParams? then options.supportHeaderParams else false
     @supportedSubmitMethods = if options.supportedSubmitMethods? then options.supportedSubmitMethods else ['get']
@@ -26,7 +26,7 @@ class SwaggerApi
     @headers = if options.headers? then options.headers else {}
     @booleanValues = if options.booleanValues? then options.booleanValues else new Array('true', 'false')
 
-    # Suffix discovery url with api_key
+    # Suffix discovery url with API key/timestamp/token
     @discoveryUrl = @suffixApiKey(@discoveryUrl)
 
     # Build right away if a callback was passed to the initializer
@@ -116,12 +116,27 @@ class SwaggerApi
     for model in @modelsArray
       model.setReferencedModels(@models)
 
-  # Suffix a passed url with api_key
+
+  # Get a hash of key/timestamp/token parameters
+  #
+  getAPIKeyParams: ->
+    params = {}
+    if @api_key? and @api_key.length > 0
+      params[@apiKeyName] = @api_key
+      if @api_secret? and @api_secret.length > 0
+        t = (new Date()).getTime().toString()
+        params[@apiTimestampName] = t
+        token = CryptoJS.SHA1(@api_secret + t).toString()
+        params[@apiTokenName] = token
+    params
+
+  # Suffix a passed url with key/timestamp/token parameters
   #
   suffixApiKey: (url) ->
-    if @api_key? and jQuery.trim(@api_key).length > 0 and url?
+    params = jQuery.param(@getAPIKeyParams())
+    if params? and params.length > 0 and url?
       sep = if url.indexOf('?') > 0 then '&' else '?'
-      url + sep + @apiKeyName + '=' + @api_key
+      url + sep + params
     else
       url
 
@@ -447,12 +462,6 @@ class SwaggerOperation
         else
           throw "#{param.name} is a required path param."
 
-    # Add API key to the params
-    if includeApiKey and @resource.api.api_key? and @resource.api.api_key.length > 0 
-      args[@apiKeyName] = @resource.api.api_key
-      if @resource.api.api_secret? and @resource.api.api_secret.length > 0
-        args[@apiSecretName] = @resource.api.api_secret
-
     # Append the query string to the URL
     if @supportHeaderParams()
       queryParams = jQuery.param(@getQueryParams(args, includeApiKey))
@@ -485,14 +494,8 @@ class SwaggerOperation
       if (jQuery.inArray(param.paramType, paramTypes) >= 0) and args[param.name]
         matchingParams[param.name] = args[param.name]
 
-    #machingParams API key to the params
-    if includeApiKey and @resource.api.api_key? and @resource.api.api_key.length > 0
-      matchingParams[@resource.api.apiKeyName] = @resource.api.api_key
-      if @resource.api.api_secret? and @resource.api.api_secret.length > 0
-        t = (new Date()).getTime().toString()
-        matchingParams[@resource.api.apiTimestampName] = t
-        token = CryptoJS.SHA1(@resource.api.api_secret + t).toString()
-        matchingParams[@resource.api.apiTokenName] = token
+    if includeApiKey
+      jQuery.extend(matchingParams, @resource.api.getAPIKeyParams())
 
     if (jQuery.inArray('header', paramTypes) >= 0)
       for name, value of @resource.api.headers
