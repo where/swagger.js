@@ -209,6 +209,9 @@ class SwaggerResource
             for endpoint in response.apis
               @addOperations(endpoint.path, endpoint.operations)
 
+          if response.resourceName?
+            @name = response.resourceName
+
           # Store a named reference to this resource on the parent object
           @api[this.name] = this
 
