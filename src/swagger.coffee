@@ -202,15 +202,15 @@ class SwaggerResource
             # TODO: Take this out.. it's a wordnik API regression
             @basePath = @basePath.replace(/\/$/, '')
 
+          if response.resourceName? and jQuery.trim(response.resourceName).length > 0
+            @name = response.resourceName
+
           @addModels(response.models)
 
           # Instantiate SwaggerOperations and store them in the @operations map and @operationsArray
           if response.apis
             for endpoint in response.apis
               @addOperations(endpoint.path, endpoint.operations)
-
-          if response.resourceName?
-            @name = response.resourceName
 
           # Store a named reference to this resource on the parent object
           @api[this.name] = this
